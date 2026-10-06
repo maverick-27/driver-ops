@@ -10,7 +10,7 @@ FROM python:3.12.8-slim
 WORKDIR /app
 RUN useradd --uid 10001 --create-home app
 COPY --from=builder --chown=app:app /app /app
-ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
+ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1 UVICORN_WORKERS=4
 USER app
 EXPOSE 8000
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD sh -c 'uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers ${UVICORN_WORKERS:-4}'

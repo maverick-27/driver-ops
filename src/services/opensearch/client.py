@@ -16,7 +16,7 @@ class OpenSearchClient:
     def __init__(self, settings: OpenSearchSettings):
         self.settings = settings
         self.index_name = settings.chunk_index
-        self.client = OpenSearch(hosts=[settings.host], use_ssl=False, verify_certs=False, timeout=30)
+        self.client = OpenSearch(hosts=[settings.host], use_ssl=False, verify_certs=False, timeout=settings.timeout_seconds)
 
     def health_check(self) -> bool:
         try:
@@ -65,18 +65,19 @@ class OpenSearchClient:
         doc_types: list[str] | None = None,
         use_hybrid: bool = True,
         min_score: float = 0.0,
+        highlight: bool = False,
     ) -> dict[str, Any]:
         """Single search entry point. BM25 when there is no embedding or use_hybrid is false. Raises SearchError."""
         hybrid = use_hybrid and query_embedding is not None
         try:
             if hybrid:
-                builder = QueryBuilder(query, size=size, doc_types=doc_types)
+                builder = QueryBuilder(query, size=size, doc_types=doc_types, highlight=highlight)
                 body = builder.build_hybrid(query_embedding, candidates=self.settings.hybrid_candidates)
                 response = self.client.search(
                     index=self.index_name, body=body, params={"search_pipeline": self.settings.rrf_pipeline_name}
                 )
             else:
-                body = QueryBuilder(query, size=size, from_=from_, doc_types=doc_types).build_bm25()
+                body = QueryBuilder(query, size=size, from_=from_, doc_types=doc_types, highlight=highlight).build_bm25()
                 response = self.client.search(index=self.index_name, body=body)
         except Exception as e:
             raise SearchError(f"Search failed: {e}") from e

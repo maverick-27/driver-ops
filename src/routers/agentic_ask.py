@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from collections.abc import AsyncIterator
@@ -54,5 +55,5 @@ async def ask_agentic_stream(request: AskRequest, service: AgenticRAGDep) -> Str
 @router.post("/feedback", response_model=FeedbackResponse)
 async def feedback(request: FeedbackRequest, tracer: TracerDep) -> FeedbackResponse:
     recorded = tracer.score(request.trace_id, "user-feedback", request.score, request.comment)
-    tracer.flush()
+    await asyncio.to_thread(tracer.flush)
     return FeedbackResponse(recorded=recorded)

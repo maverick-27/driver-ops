@@ -19,10 +19,11 @@ async def health(
 ) -> HealthResponse:
     services: dict[str, ServiceStatus] = {}
 
-    db_ok = await asyncio.to_thread(database.health_check)
-    services["database"] = ServiceStatus(status="healthy" if db_ok else "unhealthy")
+    # Parallel health checks for db, search, llm, cache
+    async def db_check() -> bool:
+        return await asyncio.to_thread(database.health_check)
 
-    def search_status() -> ServiceStatus:
+    def search_status_sync() -> ServiceStatus:
         if not opensearch_client.health_check():
             return ServiceStatus(status="unhealthy")
         try:
@@ -30,9 +31,25 @@ async def health(
         except Exception:
             return ServiceStatus(status="unhealthy", message="index missing")
 
-    services["search"] = await asyncio.to_thread(search_status)
+    async def search_check() -> ServiceStatus:
+        return await asyncio.to_thread(search_status_sync)
 
-    llm = await ollama_client.health_check()
+    async def cache_check() -> ServiceStatus:
+        if cache_client is None:
+            return ServiceStatus(status="unhealthy", message="not connected; answers are not cached")
+        return ServiceStatus(status="healthy" if await cache_client.ping() else "unhealthy")
+
+    db_ok, search_status_obj, llm_health, cache_status_obj = await asyncio.gather(
+        db_check(),
+        search_check(),
+        ollama_client.health_check(),
+        cache_check(),
+    )
+
+    services["database"] = ServiceStatus(status="healthy" if db_ok else "unhealthy")
+    services["search"] = search_status_obj
+
+    llm = llm_health
     if llm["status"] != "healthy":
         services["llm"] = ServiceStatus(status="unhealthy")
     else:
@@ -43,11 +60,7 @@ async def health(
             message=f"models not pulled: {', '.join(missing)}" if missing else ", ".join(needed),
         )
 
-    if cache_client is None:
-        services["cache"] = ServiceStatus(status="unhealthy", message="not connected; answers are not cached")
-    else:
-        services["cache"] = ServiceStatus(status="healthy" if await cache_client.ping() else "unhealthy")
-
+    services["cache"] = cache_status_obj
     services["tracing"] = ServiceStatus(status="healthy" if tracer.enabled else "disabled")
 
     # Cache and tracing are optional: only the three the answer path needs decide the overall status.

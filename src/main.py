@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
     """Build every client once. Runs once per Uvicorn worker."""
     settings = get_settings()
     app.state.settings = settings
-    app.state.database = make_database()
+    app.state.database = make_database(pool_size=settings.database_pool_size)
 
     app.state.opensearch_client = make_opensearch_client()
     if app.state.opensearch_client.health_check():

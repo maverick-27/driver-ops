@@ -30,6 +30,7 @@ async def search(
     use_hybrid: bool = True,
     from_: int = 0,
     min_score: float = 0.0,
+    highlight: bool = False,
 ) -> dict[str, Any]:
     """Run the search off the event loop (the OpenSearch client is synchronous). Raises SearchError."""
     return await asyncio.to_thread(
@@ -41,4 +42,5 @@ async def search(
         doc_types=doc_types,
         use_hybrid=use_hybrid,
         min_score=min_score,
+        highlight=highlight,
     )

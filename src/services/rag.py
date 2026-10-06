@@ -43,10 +43,12 @@ def cited_sources(chunks: list[dict[str, Any]], cited: list[str]) -> list[Source
 
 
 def request_cache_key(mode: str, request: AskRequest, model: str) -> str:
+    normalized_query = " ".join(request.query.strip().split()).lower()
+    normalized_prev = (" ".join(request.previous_question.strip().split()).lower() if request.previous_question else None)
     return cache_key(
         mode=mode,
-        query=request.query,
-        previous_question=request.previous_question,
+        query=normalized_query,
+        previous_question=normalized_prev,
         model=model,
         top_k=request.top_k,
         use_hybrid=request.use_hybrid,

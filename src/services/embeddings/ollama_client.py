@@ -1,7 +1,9 @@
 """Self-hosted embeddings through Ollama (default model bge-m3: 1024 dims, multilingual)."""
 
 import asyncio
+import hashlib
 import logging
+from functools import lru_cache
 
 import httpx
 
@@ -16,6 +18,7 @@ class OllamaEmbeddingsClient:
         self.settings = settings
         self.model = settings.model
         self._client = httpx.AsyncClient(base_url=settings.host, timeout=settings.timeout_seconds)
+        self._query_cache: dict[str, list[float]] = {}
 
     async def _embed(self, texts: list[str], retries: int | None = None, timeout: float | None = None) -> list[list[float]]:
         if retries is None:
@@ -54,7 +57,16 @@ class OllamaEmbeddingsClient:
         return out
 
     async def embed_query(self, text: str) -> list[float]:
-        return (await self._embed([text], retries=self.settings.query_retries, timeout=self.settings.query_timeout_seconds))[0]
+        normalized = text.strip().lower()
+        cache_key = hashlib.sha256(f"{normalized}:{self.model}".encode()).hexdigest()[:16]
+        if cache_key in self._query_cache:
+            return self._query_cache[cache_key]
+        embedding = (await self._embed([text], retries=self.settings.query_retries, timeout=self.settings.query_timeout_seconds))[0]
+        self._query_cache[cache_key] = embedding
+        if len(self._query_cache) > 256:
+            oldest = next(iter(self._query_cache))
+            del self._query_cache[oldest]
+        return embedding
 
     async def close(self) -> None:
         await self._client.aclose()

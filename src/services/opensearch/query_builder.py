@@ -8,11 +8,12 @@ _HIGHLIGHT = {
 
 
 class QueryBuilder:
-    def __init__(self, query: str, size: int = 5, from_: int = 0, doc_types: list[str] | None = None):
+    def __init__(self, query: str, size: int = 5, from_: int = 0, doc_types: list[str] | None = None, highlight: bool = False):
         self.query = query.strip()
         self.size = size
         self.from_ = from_
         self.doc_types = doc_types or []
+        self.highlight = highlight
 
     def filters(self) -> list[dict[str, Any]]:
         return [{"terms": {"doc_type": self.doc_types}}] if self.doc_types else []
@@ -36,14 +37,16 @@ class QueryBuilder:
         return {"bool": {"must": must, "filter": self.filters()}}
 
     def build_bm25(self) -> dict[str, Any]:
-        return {
+        body: dict[str, Any] = {
             "query": self.bm25_query(),
             "size": self.size,
             "from": self.from_,
             "track_total_hits": True,
             "_source": _SOURCE,
-            "highlight": _HIGHLIGHT,
         }
+        if self.highlight:
+            body["highlight"] = _HIGHLIGHT
+        return body
 
     def build_hybrid(self, query_embedding: list[float], candidates: int | None = None) -> dict[str, Any]:
         candidates = max(candidates or 0, self.size * 2)
@@ -51,11 +54,13 @@ class QueryBuilder:
         if self.doc_types:
             # Same filter as the BM25 clause, so vector hits cannot bypass it.
             knn["filter"] = {"bool": {"filter": self.filters()}}
-        return {
+        body: dict[str, Any] = {
             "size": self.size,
             "query": {
                 "hybrid": {"queries": [self.bm25_query(), {"knn": {"embedding": knn}}], "pagination_depth": candidates}
             },
             "_source": _SOURCE,
-            "highlight": _HIGHLIGHT,
         }
+        if self.highlight:
+            body["highlight"] = _HIGHLIGHT
+        return body

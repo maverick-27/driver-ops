@@ -26,6 +26,7 @@ async def hybrid_search(
             use_hybrid=request.use_hybrid,
             from_=request.from_,
             min_score=request.min_score,
+            highlight=True,
         )
     except SearchError:
         logger.exception("Search backend error")

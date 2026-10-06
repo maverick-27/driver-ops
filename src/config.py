@@ -10,8 +10,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ENV_FILE_PATH = PROJECT_ROOT / ".env"
 
-# Bump when any prompt changes; it is part of the cache key.
-PROMPT_VERSION = "v3"
+# Bump when any prompt changes or cache logic changes; it is part of the cache key.
+PROMPT_VERSION = "v4"
 
 
 def _config(prefix: str = "") -> SettingsConfigDict:
@@ -35,6 +35,7 @@ class OpenSearchSettings(BaseSettings):
     # Candidates each sub-query (BM25, kNN) hands to RRF. Measured on evals/questions.yaml at top_k 5:
     # 10 -> 15/18 hits, 15-20 -> 16/18, 30-100 -> 15/18. Re-measure when the corpus or eval set changes.
     hybrid_candidates: int = 20
+    timeout_seconds: float = 30.0
 
     @property
     def chunk_index(self) -> str:
@@ -131,6 +132,7 @@ class Settings(BaseSettings):
     environment: Literal["development", "staging", "production"] = "development"
     app_version: str = "0.1.0"
     postgres_database_url: str = "postgresql+psycopg2://driver_ops:driver_ops@localhost:5442/driver_ops"
+    database_pool_size: int = 2
     # Shared secret for every endpoint except health. Empty disables the check (development only).
     api_key: str = ""
 

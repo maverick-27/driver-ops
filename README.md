@@ -1,53 +1,127 @@
-# Driver Ops — corpus & eval kit
+# Driver Ops
 
-Test kit for building the **Driver Ops** RAG agent (trucking compliance + company procedures, answered over Telegram) with the `prod-rag-agent` skill.
+A RAG agent for a trucking company. Drivers ask compliance and company-procedure questions through Telegram (or a local chat page) and get short answers that cite the source documents.
 
-## What's here
+- **Scope:** trucking compliance and company procedures only. Anything else is refused.
+- **Policy vs. regulation:** when both company policy and regulation apply, the answer gives both and labels which is which.
+- **Honest about gaps:** if the corpus doesn't contain the answer, the agent says so instead of inventing one.
+- **Local-first:** the LLM and embeddings run on [Ollama](https://ollama.com) on your machine. No text leaves it unless you opt into a hosted embeddings provider.
+
+## Corpus
+
+| Folder | Contents |
+|---|---|
+| `corpus/regulations/` | R01–R18: official Canadian federal, US federal and Ontario sources (HTML and PDF), listed in `manifest.csv` and downloaded by `fetch_corpus.sh` |
+| `corpus/company/` | C01–C06: fictional "Maple Freight Inc." policies (driver handbook, accident/incident, cross-border checklist, dispatch SOP, fuel card/expense, breakdown/roadside) |
+
+The mix is deliberate: HTML and PDF, Canadian and US rules, and one older document (R08, 2012).
+
+## Architecture
 
 ```
-driver-ops/
-  fetch_corpus.sh            # downloads the 18 official regulation docs
-  corpus/
-    regulations/manifest.csv # R01–R18: titles, jurisdiction, official URLs
-    company/                 # C01–C06: fictional "Maple Freight Inc." policies
-  evals/questions.md         # 24 test questions, expected sources, pass thresholds
+Telegram bot ─┐
+Chat UI ──────┼─► FastAPI ─► LangGraph agent ─► OpenSearch (BM25 + vector)
+              │                 │                 Ollama (LLM, embeddings)
+              │                 └─► Redis (response cache)
+Airflow DAG ──► parse (Docling / HTML / Markdown) ─► chunk ─► embed ─► OpenSearch
+                                 Postgres (document metadata) · Langfuse (optional tracing)
 ```
 
-## Step 1 — download the regulations (on your machine)
+**Agent flow:** `guardrail` → `out_of_scope`, or `retrieve` → `grade_documents` → `generate_answer`; a poor retrieval goes through `rewrite_query` and back to `retrieve`, and ends at `not_found` once attempts run out.
+
+**Degrades gracefully:** without embeddings it falls back to BM25 only; without Redis it skips caching.
+
+| Path | Purpose |
+|---|---|
+| `src/main.py` | FastAPI app; clients are built once per worker in the lifespan |
+| `src/routers/` | health, hybrid search, plain RAG `ask`, `ask-agentic` (+ SSE `/stream`) |
+| `src/services/agents/` | LangGraph agent, nodes, prompts, limits |
+| `src/services/opensearch/` | hybrid retrieval, index config, citations, cache keys |
+| `src/services/parser/` | PDF (Docling), HTML and Markdown parsers |
+| `src/services/telegram/` | Telegram bot (talks to the API over HTTP) |
+| `airflow/dags/driver_ops_ingestion/` | daily ingestion DAG |
+| `ui_server.py`, `ui/` | local chat page; adds the API key server-side |
+| `evals/` | acceptance questions, runner and thresholds |
+| `tests/` | unit, API and live browser (e2e) tests |
+
+## Stack
+
+Python 3.12 (managed with `uv`), FastAPI, LangGraph, OpenSearch, PostgreSQL, Redis, Airflow, Docling, Ollama (`gemma3:4b`, `bge-m3` by default), Langfuse (optional), Docker Compose.
+
+## Quick start
+
+Requirements: Docker, [`uv`](https://docs.astral.sh/uv/), and Ollama running on the host.
 
 ```bash
-cd driver-ops
-bash fetch_corpus.sh
+ollama pull gemma3:4b && ollama pull bge-m3
+
+bash fetch_corpus.sh      # download the 18 regulations; check corpus/regulations/fetch_log.txt
+make env                  # generate .env with random secrets (never overwrites)
+make start                # api, postgres, opensearch, redis, airflow
+make ingest               # run the ingestion DAG
+make health               # curl /api/v1/health
 ```
 
-Check `corpus/regulations/fetch_log.txt`. Re-run to retry any failures. Every URL is an official government source (Justice Canada, Transport Canada, CBSA, FMCSA, CBP, ontario.ca).
+Then ask a question:
 
-Note: the corpus is deliberately mixed — HTML pages *and* PDFs, Canadian *and* US rules, one older document (R08, 2012). The skill's ingestion assumes PDFs only, so how it handles the HTML files is part of the test.
+```bash
+uv run python ui_server.py   # chat UI at http://127.0.0.1:7861
+```
 
-## Step 2 — build
+or call `POST /api/v1/ask-agentic` on `http://127.0.0.1:8000` with your `API_KEY`.
 
-Open a **fresh** Claude Code session in this folder and paste:
+| Service | URL |
+|---|---|
+| API | http://127.0.0.1:8000 |
+| Airflow | http://127.0.0.1:8081 |
+| Langfuse (`make start-all`) | http://127.0.0.1:3001 |
+| OpenSearch Dashboards (profile `tools`) | http://127.0.0.1:5601 |
 
-> Build a RAG agent called Driver Ops for a trucking company. Corpus is in `./corpus`: official Canadian/US/Ontario trucking regulations (HTML and PDF, listed in `corpus/regulations/manifest.csv`) and company policy documents in `corpus/company`. Drivers ask questions through Telegram and get short answers that cite the source documents. Domain: trucking compliance and company procedures only; refuse anything else. When company policy and regulation both apply, give both and say which is which. Use `./evals/questions.md` as the acceptance test, with its release thresholds. Follow the build order and pass each stage's check before moving to the next.
+Compose profiles: `tracing` (Langfuse), `bot` (Telegram), `tools` (OpenSearch Dashboards).
 
-Don't name the skill. Whether it picks it up on its own is part of the test.
+### Telegram bot
 
-## Step 3 — what to record
+Set `TELEGRAM__ENABLED`, `TELEGRAM__BOT_TOKEN` and `TELEGRAM__ALLOWED_USER_IDS` in `.env`, then start the `bot` profile. Only listed user ids can use it; an empty list means nobody.
 
-| Check | Pass? | Notes |
-|---|---|---|
-| Skill loaded without being named | | |
-| Read `prod-checklist.md` section B before coding | | |
-| Adapted doc key, prompts, abstract handling, source client | | |
-| Ingested HTML as well as PDF | | |
-| Retrieval hit ≥ 80% (Q01–Q15, Q22–Q24) | | |
-| Citations 100% correct | | |
-| Q16–Q18 not invented | | |
-| Q19–Q21 refused | | |
-| Q24 (Punjabi) behaviour | | |
+### Re-ingesting
 
-Whatever fails here becomes the next fixes to the skill.
+The DAG reprocesses the whole corpus but only re-parses changed files. After changing the parser, chunker or embedding model, trigger it with `{"force_reparse": true}` or `{"force_reindex": true}`.
+
+## Configuration
+
+Copy `.env.example` to `.env` (or run `make env`). Nested settings use a **double underscore** (`REDIS__PASSWORD`); a single underscore is silently ignored. `.env` holds real secrets and is git-ignored.
+
+## Development
+
+```bash
+make test     # pytest
+make lint     # ruff + mypy
+make format   # ruff --fix + ruff format
+make test-live  # browser tests against the running stack
+```
+
+Always run Python through `uv` (`uv run ...`, `uv sync`, `uv add`).
+
+## Evaluation
+
+`evals/questions.md` holds the acceptance questions, expected sources and release thresholds; `evals/questions.yaml` is the machine-readable version.
+
+```bash
+uv run python evals/run_eval.py --mode bm25|hybrid|ask|agentic   # make eval = agentic
+```
+
+Modes run staged: retrieval only, hybrid, plain RAG, then the full agent. Results go to `evals/results/<mode>.md`, and the script exits 1 if a threshold is missed.
+
+| Check | Target |
+|---|---|
+| Retrieval hit (Q01–Q15, Q22–Q24) | ≥ 80% |
+| Citations correct | 100% |
+| Q16–Q18 (not in corpus) | not invented |
+| Q19–Q21 (off-topic) | refused |
+| Q24 (Punjabi) | handled sensibly |
+
+The automatic checks do not verify regulation numbers, so read answers against the cited section. `evals/deepeval_eval.py` needs the `eval` dependency group.
 
 ## Disclaimer
 
-Maple Freight Inc., its phone numbers and email addresses are fictional. The regulation documents are the real public sources; check them for currency before using this with a real client.
+Maple Freight Inc., its phone numbers and email addresses are fictional. The regulation documents are the real public sources; check them for currency before relying on this for real compliance decisions. Answers are not legal advice.

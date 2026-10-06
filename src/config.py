@@ -52,6 +52,8 @@ class EmbeddingsSettings(BaseSettings):
     batch_size: int = 16
     timeout_seconds: float = 60.0
     retries: int = 3
+    query_timeout_seconds: float = 5.0
+    query_retries: int = 0
 
 
 class CorpusSettings(BaseSettings):
@@ -136,6 +138,9 @@ class Settings(BaseSettings):
     ollama_model: str = "gemma3:4b"
     ollama_timeout: float = 120.0
     ollama_num_ctx: int = 8192
+    ollama_keep_alive: str = "30m"
+    ollama_num_predict_default: int = -1
+    ollama_num_predict_structured: int = 256
 
     opensearch: OpenSearchSettings = Field(default_factory=OpenSearchSettings)
     embeddings: EmbeddingsSettings = Field(default_factory=EmbeddingsSettings)

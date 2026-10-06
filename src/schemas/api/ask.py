@@ -34,6 +34,7 @@ class AskResponse(BaseModel):
     removed_citations: list[str] = Field(default_factory=list, description="Cited ids dropped because they were not retrieved")
     cached: bool = False
     trace_id: str | None = None
+    timings: dict[str, float] = Field(default_factory=dict, description="Per-stage latencies in ms")
 
 
 class AgenticAskResponse(AskResponse):

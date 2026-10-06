@@ -123,23 +123,28 @@ class AgenticRAGService:
 
     async def ask(self, request: AskRequest) -> AgenticAskResponse:
         """Raises SearchError when the search backend fails; the router maps it to 503."""
-        started = time.time()
+        started = time.perf_counter()
+        timings: dict[str, float] = {}
         key, context, state_input = self._prepare(request)
 
         with self.tracer.span("agentic_rag_request", input=request.model_dump()) as root:
             trace_id = self.tracer.current_trace_id()
             if self.cache_client is not None:
+                cache_start = time.perf_counter()
                 with self.tracer.span("cache_lookup") as span:
                     cached = await self.cache_client.get(key)
                     span.update(output={"hit": cached is not None})
+                timings["cache_lookup"] = (time.perf_counter() - cache_start) * 1000
                 if cached is not None:
                     root.update(output={"answer": cached["answer"], "cached": True})
+                    timings["total"] = (time.perf_counter() - started) * 1000
                     return AgenticAskResponse(
-                        **{**cached, "cached": True, "trace_id": trace_id, "execution_time": round(time.time() - started, 3)}
+                        **{**cached, "cached": True, "trace_id": trace_id, "execution_time": round((time.perf_counter() - started) * 1000, 0) / 1000, "timings": timings}
                     )
 
             state = await self.graph.ainvoke(state_input, context=context)
-            response = self._build_response(request, state, trace_id, started)
+            timings["graph_invoke"] = (time.perf_counter() - started - sum(timings.values()) / 1000) * 1000
+            response = self._build_response(request, state, trace_id, started, timings)
             root.update(output={"answer": response.answer, "outcome": state.get("outcome")})
             await self._store(key, state, response)
             return response
@@ -151,13 +156,15 @@ class AgenticRAGService:
         No request-level trace span here: a span held open across the yields of an async generator
         cannot be closed reliably. The LLM calls inside the nodes are still traced.
         """
-        started = time.time()
+        started = time.perf_counter()
         key, context, state_input = self._prepare(request)
+        timings: dict[str, float] = {}
 
         if self.cache_client is not None:
             cached = await self.cache_client.get(key)
             if cached is not None:
-                response = AgenticAskResponse(**{**cached, "cached": True, "execution_time": round(time.time() - started, 3)})
+                timings["total"] = (time.perf_counter() - started) * 1000
+                response = AgenticAskResponse(**{**cached, "cached": True, "execution_time": round(timings["total"] / 1000, 3), "timings": timings})
                 yield {"type": "final", "response": response.model_dump()}
                 return
 
@@ -173,7 +180,7 @@ class AgenticRAGService:
                 if event is not None:
                     yield event
 
-        response = self._build_response(request, state, None, started)
+        response = self._build_response(request, state, None, started, timings)
         await self._store(key, state, response)
         yield {"type": "final", "response": response.model_dump()}
 
@@ -214,7 +221,7 @@ class AgenticRAGService:
             return {"type": "step", "node": node, "next": "retrieve", "data": {"query": state.get("rewritten_query")}}
         return None
 
-    def _build_response(self, request: AskRequest, state: dict[str, Any], trace_id: str | None, started: float) -> AgenticAskResponse:
+    def _build_response(self, request: AskRequest, state: dict[str, Any], trace_id: str | None, started: float, timings: dict[str, float] | None = None) -> AgenticAskResponse:
         outcome = state.get("outcome")
         chunks = state.get("chunks") or []
         retrieved = unique_doc_ids(chunks)
@@ -238,6 +245,9 @@ class AgenticRAGService:
             steps.append(f"Query rewritten: {state['rewritten_query']}")
         steps.append(f"Outcome: {outcome}")
 
+        if timings is None:
+            timings = {}
+        timings["total"] = (time.perf_counter() - started) * 1000
         return AgenticAskResponse(
             query=request.query,
             answer=answer,
@@ -253,5 +263,6 @@ class AgenticRAGService:
             retrieval_attempts=state.get("retrieval_attempts", 0),
             rewritten_query=state.get("rewritten_query"),
             guardrail_score=guardrail.score if guardrail is not None else None,
-            execution_time=round(time.time() - started, 3),
+            execution_time=round(timings["total"] / 1000, 3),
+            timings=timings,
         )

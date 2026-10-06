@@ -1,0 +1,12 @@
+.venv
+.env
+.env.*
+corpus
+evals
+tests
+airflow
+**/__pycache__
+.git
+.pytest_cache
+.mypy_cache
+.ruff_cache

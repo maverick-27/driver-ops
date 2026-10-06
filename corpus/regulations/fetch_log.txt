@@ -1,0 +1,2 @@
+FAIL R04  HTTP 403  https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2022-04/FMCSA-HOS-395-DRIVERS-GUIDE-TO-HOS%282022-04-28%29_0.pdf
+FAIL R05  HTTP 403  https://www.fmcsa.dot.gov/regulations/hours-of-service

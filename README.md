@@ -102,6 +102,26 @@ make test-live  # browser tests against the running stack
 
 Always run Python through `uv` (`uv run ...`, `uv sync`, `uv add`).
 
+## GitHub Actions with Claude
+
+You can set up GitHub Actions to automate workflows using Claude Code:
+
+```bash
+/install-github-app    # Authorize Claude to access your GitHub repository
+```
+
+This allows Claude to:
+- Run tests and linting on pull requests
+- Deploy changes to staging or production
+- Trigger ingestion DAGs on code changes
+- Post review comments and status checks
+
+To revoke access later:
+
+```bash
+gh auth logout
+```
+
 ## Evaluation
 
 `evals/questions.md` holds the acceptance questions, expected sources and release thresholds; `evals/questions.yaml` is the machine-readable version.

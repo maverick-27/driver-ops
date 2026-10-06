@@ -57,7 +57,7 @@ class OllamaEmbeddingsClient:
         return out
 
     async def embed_query(self, text: str) -> list[float]:
-        normalized = text.strip().lower()
+        normalized = " ".join(text.strip().split()).lower()
         cache_key = hashlib.sha256(f"{normalized}:{self.model}".encode()).hexdigest()[:16]
         if cache_key in self._query_cache:
             return self._query_cache[cache_key]

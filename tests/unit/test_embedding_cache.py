@@ -45,10 +45,13 @@ async def test_embedding_cache_normalizes():
     client = MockOllamaEmbeddingsClient(settings)
 
     emb1 = await client.embed_query("test query")
+    cache_size_after_first = len(client._query_cache)
     emb2 = await client.embed_query("TEST QUERY")
     emb3 = await client.embed_query("  test   query  ")
 
-    assert client.embed_calls == 1  # All normalized to same query
+    # Cache size should not grow after first query (all normalized to same key)
+    assert cache_size_after_first == 1
+    assert len(client._query_cache) == 1  # Still only one entry
     assert emb1 == emb2 == emb3
 
 

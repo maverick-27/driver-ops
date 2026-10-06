@@ -138,8 +138,9 @@ class AgenticRAGService:
                 if cached is not None:
                     root.update(output={"answer": cached["answer"], "cached": True})
                     timings["total"] = (time.perf_counter() - started) * 1000
+                    exec_time = round(timings["total"] / 1000, 3)
                     return AgenticAskResponse(
-                        **{**cached, "cached": True, "trace_id": trace_id, "execution_time": round((time.perf_counter() - started) * 1000, 0) / 1000, "timings": timings}
+                        **{**cached, "cached": True, "trace_id": trace_id, "execution_time": exec_time, "timings": timings}
                     )
 
             state = await self.graph.ainvoke(state_input, context=context)
@@ -164,7 +165,8 @@ class AgenticRAGService:
             cached = await self.cache_client.get(key)
             if cached is not None:
                 timings["total"] = (time.perf_counter() - started) * 1000
-                response = AgenticAskResponse(**{**cached, "cached": True, "execution_time": round(timings["total"] / 1000, 3), "timings": timings})
+                exec_time = round(timings["total"] / 1000, 3)
+                response = AgenticAskResponse(**{**cached, "cached": True, "execution_time": exec_time, "timings": timings})
                 yield {"type": "final", "response": response.model_dump()}
                 return
 
@@ -190,7 +192,8 @@ class AgenticRAGService:
         if node == "guardrail":
             result = state.get("guardrail_result")
             data = {"score": result.score if result else None, "reason": result.reason if result else None}
-            return {"type": "step", "node": node, "next": "retrieve" if state["routing_decision"] == "continue" else None, "data": data}
+            next_node = "retrieve" if state["routing_decision"] == "continue" else None
+            return {"type": "step", "node": node, "next": next_node, "data": data}
         if node == "retrieve":
             excerpts = []
             for hit in state["chunks"]:
@@ -221,7 +224,14 @@ class AgenticRAGService:
             return {"type": "step", "node": node, "next": "retrieve", "data": {"query": state.get("rewritten_query")}}
         return None
 
-    def _build_response(self, request: AskRequest, state: dict[str, Any], trace_id: str | None, started: float, timings: dict[str, float] | None = None) -> AgenticAskResponse:
+    def _build_response(
+        self,
+        request: AskRequest,
+        state: dict[str, Any],
+        trace_id: str | None,
+        started: float,
+        timings: dict[str, float] | None = None,
+    ) -> AgenticAskResponse:
         outcome = state.get("outcome")
         chunks = state.get("chunks") or []
         retrieved = unique_doc_ids(chunks)

@@ -5,11 +5,13 @@ from fastapi import Depends, Header, HTTPException, Request
 
 from src.config import Settings
 from src.db.interfaces.base import BaseDatabase
+from src.services.agents.agentic_rag import AgenticRAGService
 from src.services.cache.client import CacheClient
 from src.services.embeddings.factory import EmbeddingsClient
 from src.services.langfuse.tracer import LangfuseTracer
 from src.services.ollama.client import OllamaClient
 from src.services.opensearch.client import OpenSearchClient
+from src.services.rag import RAGService
 
 
 def get_app_settings(request: Request) -> Settings:
@@ -40,11 +42,11 @@ def get_tracer(request: Request) -> LangfuseTracer:
     return request.app.state.langfuse_tracer
 
 
-def get_rag_service(request: Request):
+def get_rag_service(request: Request) -> RAGService:
     return request.app.state.rag_service
 
 
-def get_agentic_rag_service(request: Request):
+def get_agentic_rag_service(request: Request) -> AgenticRAGService:
     return request.app.state.agentic_rag_service
 
 
@@ -63,4 +65,6 @@ EmbeddingsDep = Annotated[EmbeddingsClient | None, Depends(get_embeddings_client
 OllamaDep = Annotated[OllamaClient, Depends(get_ollama_client)]
 CacheDep = Annotated[CacheClient | None, Depends(get_cache_client)]
 TracerDep = Annotated[LangfuseTracer, Depends(get_tracer)]
+RAGServiceDep = Annotated[RAGService, Depends(get_rag_service)]
+AgenticRAGServiceDep = Annotated[AgenticRAGService, Depends(get_agentic_rag_service)]
 ApiKeyDep = Depends(require_api_key)

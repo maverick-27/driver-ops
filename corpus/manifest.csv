@@ -1,7 +1,5 @@
 doc_id,title,source_url,province,jurisdiction_type,doc_type,language,last_updated,file_format,status
-R01,FMVSS Part 302 - Fuel System Safety,https://laws-lois.justice.gc.ca/eng/regulations/2009-318/,CA,federal,regulation,en,2026-10-01,MD,placeholder
-R02,FMVSS Part 219 - Windshield Defrost,https://laws-lois.justice.gc.ca/eng/regulations/2009-318/,CA,federal,regulation,en,2026-10-01,MD,placeholder
-R03,CSA Standards - Commercial Vehicles,https://standards.csa.ca/,CA,federal,regulation,en,2026-10-01,MD,placeholder
-R04,Highway Traffic Act (Ontario),https://ontario.ca/laws/statute/990390,ON,provincial,regulation,en,2026-10-01,MD,placeholder
-R05,Motor Vehicle Act (British Columbia),https://www.bclaws.ca/,BC,provincial,regulation,en,2026-10-01,MD,placeholder
-R06,Traffic Safety Act (Alberta),https://www.canlii.org/en/ab/laws/stat/rsa-2000-c-t-6/,AB,provincial,regulation,en,2026-10-01,MD,placeholder
+R01,Motor Vehicle Safety Regulations (FMVSS Part 318),https://laws-lois.justice.gc.ca/eng/regulations/2009-318/,CA,federal,regulation,en,2026-10-07,HTML,active
+R02,Highway Traffic Act (Ontario),https://www.ontario.ca/laws/statute/990390,ON,provincial,regulation,en,2026-10-07,HTML,active
+R03,Motor Vehicle Act (British Columbia),https://www.bclaws.ca/civix/document/id/complete/statreg/00_96333_01,BC,provincial,regulation,en,2026-10-07,HTML,active
+R04,Traffic Safety Act (Alberta),https://www.canlii.org/en/ab/laws/stat/rsa-2000-c-t-6/,AB,provincial,regulation,en,2026-10-07,HTML,active

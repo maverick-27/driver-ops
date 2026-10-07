@@ -59,3 +59,31 @@ UNAVAILABLE_MESSAGE = (
 
 # Appended to the original question when the rewrite model fails.
 REWRITE_FALLBACK_KEYWORDS = "trucking regulation company policy procedure driver"
+
+# Greeting detection and friendly responses
+GREETINGS = {
+    # English greetings
+    "hello": "Hi! 👋 Ask me about Canadian trucking regulations - speed limits, inspections, hours of service, border paperwork, etc.",
+    "hi": "Hi! 👋 Ask me about Canadian trucking regulations - speed limits, inspections, hours of service, border paperwork, etc.",
+    "hey": "Hey! 👋 Ask me about Canadian trucking regulations - speed limits, inspections, hours of service, border paperwork, etc.",
+    "how are you": "I'm here to help with trucking! Ask me about regulations, inspections, hours of service, or anything else trucking-related.",
+
+    # Punjabi greetings (with multiple spellings)
+    "ki haal": "ਮੈ ਠੀਕ ਹਾਂ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ - ਸਪੀਡ ਲਿਮਿਟ, ਇੰਸਪੈਕਸ਼ਨ, ਘੰਟਿਆਂ ਦੀ ਸੇਵਾ, ਸੀਮਾ ਦੇ ਕਾਗ਼ਜ਼, ਆਦਿ।",
+    "kee haal": "ਮੈ ਠੀਕ ਹਾਂ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ - ਸਪੀਡ ਲਿਮਿਟ, ਇੰਸਪੈਕਸ਼ਨ, ਘੰਟਿਆਂ ਦੀ ਸੇਵਾ, ਸੀਮਾ ਦੇ ਕਾਗ਼ਜ਼, ਆਦਿ।",
+    "kya haal": "ਮੈ ਠੀਕ ਹਾਂ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ - ਸਪੀਡ ਲਿਮਿਟ, ਇੰਸਪੈਕਸ਼ਨ, ਘੰਟਿਆਂ ਦੀ ਸੇਵਾ, ਸੀਮਾ ਦੇ ਕਾਗ਼ਜ਼, ਆਦਿ।",
+    "sat sri akal": "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ।",
+    "namaste": "ਨਮਸਤੇ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ।",
+}
+
+def is_greeting(question: str) -> tuple[bool, str]:
+    """Check if the question is a casual greeting and return a friendly response.
+
+    Returns:
+        (is_greeting: bool, response: str)
+    """
+    normalized = question.lower().strip()
+    for greeting_pattern, response in GREETINGS.items():
+        if greeting_pattern in normalized:
+            return True, response
+    return False, ""

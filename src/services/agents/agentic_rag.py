@@ -11,6 +11,7 @@ from src.schemas.api.ask import AgenticAskResponse, AskRequest
 from src.services.agents.config import GraphConfig
 from src.services.agents.context import Context
 from src.services.agents.nodes.generate_answer import ainvoke_generate_answer_step
+from src.services.agents.prompts import is_greeting
 from src.services.agents.nodes.grade_documents import ainvoke_grade_documents_step
 from src.services.agents.nodes.guardrail import ainvoke_guardrail_step
 from src.services.agents.nodes.not_found import ainvoke_not_found_step
@@ -125,6 +126,22 @@ class AgenticRAGService:
         """Raises SearchError when the search backend fails; the router maps it to 503."""
         started = time.perf_counter()
         timings: dict[str, float] = {}
+
+        # Check for greetings first (no agent run needed)
+        is_greet, greeting_response = is_greeting(request.query)
+        if is_greet:
+            return AgenticAskResponse(
+                answer=greeting_response,
+                sources=[],
+                refused=False,
+                not_found=False,
+                cached=False,
+                search_mode="none",
+                retrieval_attempts=0,
+                trace_id="",
+                execution_time=int((time.perf_counter() - started) * 1000),
+            )
+
         key, context, state_input = self._prepare(request)
 
         with self.tracer.span("agentic_rag_request", input=request.model_dump()) as root:

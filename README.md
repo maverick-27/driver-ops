@@ -1,20 +1,42 @@
-# Driver Ops
+# Canadian Trucking Compliance Platform
 
-A RAG agent for a trucking company. Drivers ask compliance and company-procedure questions through Telegram (or a local chat page) and get short answers that cite the source documents.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
+[![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](https://www.docker.com/)
 
-- **Scope:** trucking compliance and company procedures only. Anything else is refused.
-- **Policy vs. regulation:** when both company policy and regulation apply, the answer gives both and labels which is which.
-- **Honest about gaps:** if the corpus doesn't contain the answer, the agent says so instead of inventing one.
-- **Local-first:** the LLM and embeddings run on [Ollama](https://ollama.com) on your machine. No text leaves it unless you opt into a hosted embeddings provider.
+A free, open-source compliance assistant for truckers across Canada. Get accurate answers about trucking regulations for any province or federal jurisdiction—in English or Punjabi.
+
+**Features:**
+- **Coverage:** All 13 Canadian jurisdictions (federal + 10 provinces + 3 territories)
+- **Languages:** Ask in English or Punjabi (ਪੰਜਾਬੀ); answers in English
+- **Accuracy:** Citations to official regulations and source URLs
+- **Open-source:** MIT license; community-maintained
+- **Free:** No login, no payments, no company data
+- **Local-first:** LLM and embeddings run on [Ollama](https://ollama.com) on your machine
+
+## Supported Languages
+
+### UI Languages
+- English (full support)
+- Punjabi (ਪੰਜਾਬੀ) — Phase 1
+
+### Query Languages
+- English
+- Punjabi (users can ask questions in Punjabi; answers in English)
+
+### Document Languages
+- English (all regulations)
+- Punjabi translations: Phase 2 (if demand warrants)
 
 ## Corpus
 
 | Folder | Contents |
 |---|---|
-| `corpus/regulations/` | R01–R18: official Canadian federal, US federal and Ontario sources (HTML and PDF), listed in `manifest.csv` and downloaded by `fetch_corpus.sh` |
-| `corpus/company/` | C01–C06: fictional "Maple Freight Inc." policies (driver handbook, accident/incident, cross-border checklist, dispatch SOP, fuel card/expense, breakdown/roadside) |
+| `corpus/regulations/federal/` | FMVSS, CSA, CVSA — federal standards |
+| `corpus/regulations/provinces/` | All 13 jurisdictions (BC, AB, SK, MB, ON, QC, NB, NS, PE, NL, YT, NT, NU) |
+| `corpus/manifest.csv` | Metadata for all ~300+ documents |
 
-The mix is deliberate: HTML and PDF, Canadian and US rules, and one older document (R08, 2012).
+The corpus is community-maintained. See [CONTRIBUTING.md](CONTRIBUTING.md) to update regulations or suggest improvements.
 
 ## Architecture
 
@@ -69,6 +91,17 @@ uv run python ui_server.py   # chat UI at http://127.0.0.1:7861
 ```
 
 or call `POST /api/v1/ask-agentic` on `http://127.0.0.1:8000` with your `API_KEY`.
+
+## Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for cloud setup (AWS, DigitalOcean, self-hosted).
+
+## Contributing
+
+This is a community-maintained corpus. To update regulations or suggest improvements, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+**GitHub:** [canadian-trucking-compliance/platform](https://github.com/canadian-trucking-compliance/platform)  
+**Issues:** [Report bugs or suggest regulations](https://github.com/canadian-trucking-compliance/platform/issues)
 
 | Service | URL |
 |---|---|

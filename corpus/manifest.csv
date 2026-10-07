@@ -1,5 +1,15 @@
 doc_id,title,source_url,province,jurisdiction_type,doc_type,language,last_updated,file_format,status
 R01,Motor Vehicle Safety Regulations (FMVSS Part 318),https://laws-lois.justice.gc.ca/eng/regulations/2009-318/,CA,federal,regulation,en,2026-10-07,HTML,active
-R02,Highway Traffic Act (Ontario),https://www.ontario.ca/laws/statute/990390,ON,provincial,regulation,en,2026-10-07,HTML,active
-R03,Motor Vehicle Act (British Columbia),https://www.bclaws.ca/civix/document/id/complete/statreg/00_96333_01,BC,provincial,regulation,en,2026-10-07,HTML,active
-R04,Traffic Safety Act (Alberta),https://www.canlii.org/en/ab/laws/stat/rsa-2000-c-t-6/,AB,provincial,regulation,en,2026-10-07,HTML,active
+R02,Highway Traffic Act,https://www.ontario.ca/laws/statute/990390,ON,provincial,regulation,en,2026-10-07,HTML,active
+R03,Motor Vehicle Act,https://www.bclaws.ca/civix/document/id/complete/statreg/00_96333_01,BC,provincial,regulation,en,2026-10-07,HTML,active
+R04,Traffic Safety Act,https://www.canlii.org/en/ab/laws/stat/rsa-2000-c-t-6/,AB,provincial,regulation,en,2026-10-07,HTML,active
+R05,Motor Vehicle Act,https://www.canlii.org/en/sk/laws/stat/ss-1989-c-m-22.1/,SK,provincial,regulation,en,2026-10-07,HTML,active
+R06,Highway Traffic Act,https://www.canlii.org/en/mb/laws/stat/ccsm-m220/,MB,provincial,regulation,en,2026-10-07,HTML,active
+R07,Highway Safety Code,https://www.canlii.org/en/qc/laws/stat/cqlr-c-c-24.2/,QC,provincial,regulation,en,2026-10-07,HTML,active
+R08,Motor Vehicle Act,https://www.canlii.org/en/nb/laws/stat/rsnb-1973-c-m-14.2/,NB,provincial,regulation,en,2026-10-07,HTML,active
+R09,Motor Vehicle Act,https://www.canlii.org/en/ns/laws/stat/rsns-1989-c-293/,NS,provincial,regulation,en,2026-10-07,HTML,active
+R10,Motor Vehicle Act,https://www.canlii.org/en/pe/laws/stat/rspei-1988-c-m-17/,PE,provincial,regulation,en,2026-10-07,HTML,active
+R11,Highway Traffic Act,https://www.canlii.org/en/nl/laws/stat/rsnl-1990-c-m-25/,NL,provincial,regulation,en,2026-10-07,HTML,active
+R12,Motor Vehicles Act,https://www.canlii.org/en/yt/laws/stat/rsy-2002-c-153/,YT,provincial,regulation,en,2026-10-07,HTML,active
+R13,Motor Vehicles Ordinance,https://www.canlii.org/en/nt/laws/stat/snwt-1988-c-m-18/,NT,provincial,regulation,en,2026-10-07,HTML,active
+R14,Motor Vehicles Ordinance,https://www.canlii.org/en/nu/laws/stat/snu-2003-c-17/,NU,provincial,regulation,en,2026-10-07,HTML,active

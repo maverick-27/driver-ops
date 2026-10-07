@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Driver Ops</title>
+<title>Canadian Trucking Compliance Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700&family=Work+Sans:wght@400;500;600&family=Noto+Sans+Gurmukhi:wght@400;700&display=swap" rel="stylesheet">
 <script>
   // Theme before first paint: saved choice, else the OS setting.
   (function () {
@@ -224,6 +224,13 @@
     *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
     .scroll { scroll-behavior: auto; }
   }
+
+  /* ---------- Punjabi language support ---------- */
+  body.punjabi { font-family: "Noto Sans Gurmukhi", var(--font-body); }
+  .lang-toggle { display: flex; gap: 4px; }
+  .lang-btn { min-width: 44px; height: 44px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 1px solid transparent; border-radius: 10px; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: background-color var(--transition-theme), color var(--transition-theme), border-color var(--transition-theme); }
+  .lang-btn:hover { background: var(--surface-2); color: var(--text); }
+  .lang-btn.active { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
 </style>
 </head>
 <body>
@@ -234,7 +241,7 @@
       <div class="brand-mark" aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H14a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h5.5" transform="translate(0 2)"/></svg>
       </div>
-      <div><b>Driver Ops</b><span>Maple Freight</span></div>
+      <div><b>Trucking Compliance</b><span>Canada</span></div>
     </div>
     <div class="rail-body">
       <button class="new-btn" id="new" type="button">
@@ -257,7 +264,11 @@
       <button class="icon-btn only-narrow" id="open-rail" type="button" aria-label="Open menu">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
-      <h1>Driver Ops <small>trucking rules and company procedures</small></h1>
+      <h1>Canadian Trucking Compliance <small>regulations and procedures</small></h1>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lang-en" type="button" aria-label="English">English</button>
+        <button class="lang-btn" id="lang-pa" type="button" aria-label="Punjabi">ਪੰਜਾਬੀ</button>
+      </div>
       <button class="icon-btn" id="theme" type="button" aria-label="Switch colour theme">
         <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
       </button>
@@ -635,6 +646,33 @@ async function checkStatus() {
 showHero(); renderHistory(); renderTrace(); setSend(); paintTheme(); checkStatus();
 setInterval(checkStatus, 30000);
 input.focus();
+
+// Language toggle
+let translations = { en: {}, pa: {} };
+fetch("/translations/punjabi.json").then(r => r.json()).catch(() => {}).then(data => { if (data) translations.pa = data; });
+
+const langBtns = document.querySelectorAll(".lang-btn");
+const setLanguage = (lang) => {
+  localStorage.setItem("language", lang);
+  document.body.classList.toggle("punjabi", lang === "pa");
+  langBtns.forEach(b => b.classList.remove("active"));
+  document.getElementById(lang === "en" ? "lang-en" : "lang-pa")?.classList.add("active");
+
+  // Update UI labels
+  if (lang === "pa" && translations.pa) {
+    $("question").placeholder = translations.pa.placeholder || "ਆਪਣਾ ਸਵਾਲ ਪੁੱਛੋ...";
+  } else {
+    $("question").placeholder = "Ask about a rule or a company procedure";
+  }
+};
+
+langBtns.forEach(btn => btn.addEventListener("click", () => {
+  const lang = btn.id === "lang-en" ? "en" : "pa";
+  setLanguage(lang);
+}));
+
+const savedLang = localStorage.getItem("language") || "en";
+if (savedLang === "pa") setLanguage("pa");
 </script>
 </body>
 </html>

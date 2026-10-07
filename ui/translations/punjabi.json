@@ -1,0 +1,19 @@
+{
+  "title": "ਕੈਨੇਡਾ ਟਰੱਕਿੰਗ ਕੰਪਲਾਇਂਸ ਪਲੇਟਫਾਰਮ",
+  "subtitle": "ਆਪਣੇ ਸਵਾਲਾਂ ਦੇ ਜਵਾਬ ਲੋ",
+  "placeholder": "ਆਪਣਾ ਸਵਾਲ ਪੁੱਛੋ...",
+  "send": "ਭੇਜੋ",
+  "language": "ਭਾਸ਼ਾ",
+  "english": "English",
+  "punjabi": "ਪੰਜਾਬੀ",
+  "loading": "ਜਵਾਬ ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...",
+  "error": "API ਨੇ ਜਵਾਬ ਨਹੀਂ ਦਿੱਤਾ। ਸਿਸਟਮ ਪੈਨਲ ਚੈੱਕ ਕਰੋ।",
+  "system_panel": "ਸਿਸਟਮ ਸਥਿਤੀ",
+  "healthy": "ਸਠੀਕ",
+  "unhealthy": "ਸਮੱਸਿਆ",
+  "status": "ਸਥਿਤੀ",
+  "model": "ਮਾਡਲ",
+  "citations": "ਸਰੋਤ",
+  "province": "ਸਥਾਨ",
+  "regulation": "ਨਿਯਮ"
+}

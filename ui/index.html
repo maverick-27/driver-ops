@@ -53,8 +53,8 @@
   }
 
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; color-scheme: light dark; transition: background-color .3s var(--ease); }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.6 var(--font-body); transition: background-color .3s var(--ease), color .3s var(--ease); }
+  html { -webkit-text-size-adjust: 100%; color-scheme: light dark; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.6 var(--font-body); transition: background-color .25s ease-in-out, color .25s ease-in-out; }
   button { font: inherit; color: inherit; cursor: pointer; }
   :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
   svg { flex: none; }
@@ -62,7 +62,7 @@
 
   /* ---------- Shell ---------- */
   .app { display: grid; grid-template-columns: 264px minmax(0, 1fr) 372px; height: 100dvh; }
-  .rail, .trace { background: var(--surface); display: flex; flex-direction: column; min-height: 0; transition: background-color var(--transition-theme), border-color var(--transition-theme); }
+  .rail, .trace { background: var(--surface); display: flex; flex-direction: column; min-height: 0; transition: background-color .25s ease-in-out, border-color .25s ease-in-out; }
   .rail { border-right: 1px solid var(--border); }
   .trace { border-left: 1px solid var(--border); }
   .center { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
@@ -120,7 +120,7 @@
   .msg { animation: rise .22s var(--ease) both; }
   @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
   .q { align-self: flex-end; max-width: min(84%, 620px); background: var(--user-bg); color: var(--user-fg); padding: 10px 16px; border-radius: 16px 16px 4px 16px; overflow-wrap: anywhere; transition: background-color var(--transition-theme), color var(--transition-theme); }
-  .a { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; transition: background-color var(--transition-theme), border-color var(--transition-theme), box-shadow var(--transition-theme); }
+  .a { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; transition: background-color .25s ease-in-out, border-color .25s ease-in-out, box-shadow .25s ease-in-out; }
   .a.selected { border-color: var(--border-strong); }
   .a-live { display: flex; align-items: center; gap: 10px; padding: 14px 18px 0; font-size: 14px; color: var(--muted); }
   .a-body { padding: 14px 18px 16px; overflow-wrap: anywhere; }
@@ -662,10 +662,16 @@ function paintTheme() {
   $("theme").setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
 }
 $("theme").addEventListener("click", () => {
-  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  const current = document.documentElement.dataset.theme || "light";
+  const next = current === "dark" ? "light" : "dark";
   document.documentElement.dataset.theme = next;
   try { localStorage.setItem("driverops-theme", next); } catch (e) {}
-  paintTheme();
+  // Force repaint to avoid glitches
+  document.documentElement.style.transition = "none";
+  setTimeout(() => {
+    paintTheme();
+    document.documentElement.style.transition = "";
+  }, 10);
 });
 
 async function checkStatus() {

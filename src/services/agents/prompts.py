@@ -67,13 +67,39 @@ GREETINGS = {
     "hi": "Hi! 👋 Ask me about Canadian trucking regulations - speed limits, inspections, hours of service, border paperwork, etc.",
     "hey": "Hey! 👋 Ask me about Canadian trucking regulations - speed limits, inspections, hours of service, border paperwork, etc.",
     "how are you": "I'm here to help with trucking! Ask me about regulations, inspections, hours of service, or anything else trucking-related.",
+    "thanks": "You're welcome! 😊 Feel free to ask me anything about Canadian trucking regulations and compliance.",
+    "thank you": "You're welcome! 😊 Feel free to ask me anything about Canadian trucking regulations and compliance.",
 
-    # Punjabi greetings (with multiple spellings)
+    # Punjabi greetings & common phrases
+    # "Ki haal" variants (How are you)
     "ki haal": "ਮੈ ਠੀਕ ਹਾਂ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ - ਸਪੀਡ ਲਿਮਿਟ, ਇੰਸਪੈਕਸ਼ਨ, ਘੰਟਿਆਂ ਦੀ ਸੇਵਾ, ਸੀਮਾ ਦੇ ਕਾਗ਼ਜ਼, ਆਦਿ।",
     "kee haal": "ਮੈ ਠੀਕ ਹਾਂ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ - ਸਪੀਡ ਲਿਮਿਟ, ਇੰਸਪੈਕਸ਼ਨ, ਘੰਟਿਆਂ ਦੀ ਸੇਵਾ, ਸੀਮਾ ਦੇ ਕਾਗ਼ਜ਼, ਆਦਿ।",
     "kya haal": "ਮੈ ਠੀਕ ਹਾਂ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ - ਸਪੀਡ ਲਿਮਿਟ, ਇੰਸਪੈਕਸ਼ਨ, ਘੰਟਿਆਂ ਦੀ ਸੇਵਾ, ਸੀਮਾ ਦੇ ਕਾਗ਼ਜ਼, ਆਦਿ।",
+    "kida hai": "ਮੈ ਠੀਕ ਹਾਂ, ਧੰਨਵਾਦ! 🙏 ਟਰੱਕਿੰਗ ਬਾਰੇ ਕੋਈ ਸਵਾਲ?",
+
+    # Religious greetings
     "sat sri akal": "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ।",
     "namaste": "ਨਮਸਤੇ! 🙏 ਮੈਨੂੰ ਕੈਨੇਡਾ ਦੇ ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ।",
+
+    # "Theek" variants (Okay/Good)
+    "theek hai": "ਬਿਲਕੁਲ! 👍 ਕੀ ਮੈ ਟਰੱਕਿੰਗ ਬਾਰੇ ਤੁਹਾਡਾ ਸਵਾਲ ਦਾ ਜਵਾਬ ਦੇ ਸਕਦਾ ਹਾਂ?",
+    "theek tuc": "ਬਿਲਕੁਲ! 👍 ਮੈਨੂੰ ਪੁੱਛੋ!",
+    "theek": "ਬਿਲਕੁਲ! 👍 ਟਰੱਕਿੰਗ ਦੇ ਬਾਰੇ ਪੁੱਛੋ!",
+
+    # Thanks variants
+    "shukkria": "ਆਪਾਂ ਦਾ ਸਵਾਗਤ ਹੈ! 😊 ਕੀ ਕੋਈ ਹੋਰ ਸਵਾਲ ਹੈ?",
+    "dhanyavaad": "ਆਪਾਂ ਦਾ ਸਵਾਗਤ ਹੈ! 😊 ਮੈਨੂੰ ਟਰੱਕਿੰਗ ਬਾਰੇ ਪੁੱਛੋ।",
+
+    # General affirmations
+    "haan": "ਬਿਲਕੁਲ! 👍 ਟਰੱਕਿੰਗ ਨਿਯਮਾਂ ਬਾਰੇ ਪੁੱਛੋ।",
+    "bilkul": "ਬਿਲਕੁਲ! 👍 ਮੈਨੂੰ ਪੁੱਛੋ।",
+
+    # Casual truck driver phrases
+    "kida jee": "ਮੈ ਠੀਕ ਹਾਂ! 🙏 ਟਰੱਕਿੰਗ ਬਾਰੇ ਕੋਈ ਸਵਾਲ?",
+    "oye": "ਹੋ! 👋 ਕੀ ਮੈ ਸਹਾਇਤਾ ਕਰ ਸਕਦਾ ਹਾਂ?",
+    "yaar": "ਹਲੋ ਯਾਰ! 👋 ਟਰੱਕਿੰਗ ਬਾਰੇ ਕੁਝ ਪੁੱਛੋ।",
+    "truck chalda": "ਹਾਂ, ਚੱਕਰਾ ਚੱਲ ਰਿਹਾ ਹੈ! 🚛 ਟਰੱਕਿੰਗ ਸਵਾਲ ਲਈ ਕਾਲ ਕਰੋ।",
+    "chalda hai": "ਆ ਰਿਹਾ ਹੈ! 🚛 ਕੀ ਮੈਨੂੰ ਰਸਤੇ ਦੀ ਸਹਾਇਤਾ ਕਰ ਸਕਦਾ ਹਾਂ?",
 }
 
 def is_greeting(question: str) -> tuple[bool, str]:

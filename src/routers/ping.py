@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from src.dependencies import CacheDep, DatabaseDep, OllamaDep, OpenSearchDep, SettingsDep, TracerDep
 from src.schemas.api.health import HealthResponse, ServiceStatus
+from src.services.monitoring import metrics_collector
 
 router = APIRouter(tags=["health"])
 
@@ -71,3 +72,13 @@ async def health(
         environment=settings.environment,
         services=services,
     )
+
+
+@router.get("/metrics", tags=["monitoring"])
+async def get_metrics():
+    """Get performance metrics for the last 5 minutes."""
+    return {
+        "stats_5min": metrics_collector.get_stats(minutes=5),
+        "stats_1min": metrics_collector.get_stats(minutes=1),
+        "slowest_queries": metrics_collector.get_top_queries(limit=5),
+    }
